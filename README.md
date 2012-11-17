@@ -1,4 +1,4 @@
-PrestaShop-module-from-scratch
+PrestaShop - Creating module from scratch
 ==============================
 
-Code used in my series of tutorials for creating a PrestaShop module from scratch
+Git repo of code from tutorials on how to create PrestaShop module from scratch (all PS versions)
