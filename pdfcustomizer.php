@@ -43,7 +43,7 @@ class PdfCustomizer extends Module
 	
 	public function install()
 	{     
-			if(!parent::install()){
+			if(!parent::install() || !$this->registerHook('header')){
 			return false;
 			}
 			else{
@@ -60,6 +60,7 @@ class PdfCustomizer extends Module
 			return true;
 			}
 	}
+	
 	public function getContent(){
 		$this->_html = "<h2>".$this->displayName."</h2>";
 	
@@ -67,11 +68,21 @@ class PdfCustomizer extends Module
 	
 		return $this->_html;
 	}
+	
 	public function _displayForm(){
 		$this->_html .= '
 		<fieldset class="space">
 			<legend><img src="'.$this->_path.'logo_stores.gif" /> This is some tab text</legend>
 			<label>A label</label><input type="submit" class="button" />
 		</fieldset>';
+	}
+	
+	public function hookHeader($params){
+		global $smarty;
+		$smarty->assign(array(
+				'jslink' => $this->_path."debug.js"
+		));
+		Tools::addJS($this->_path."debug.js");
+		return $this->display(__FILE__, 'header.tpl');
 	}
 }
