@@ -70,7 +70,7 @@ class PdfCustomizer extends Module
 	public function _displayForm(){
 		$this->_html .= '
 		<fieldset class="space">
-			<legend><img src="http://www.google.co.uk/intl/en_com/images/srpr/logo1w.png" /> This is some tab text</legend>
+			<legend><img src="'.$this->_path.'logo_stores.gif" /> This is some tab text</legend>
 			<label>A label</label><input type="submit" class="button" />
 		</fieldset>';
 	}
