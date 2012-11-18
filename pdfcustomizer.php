@@ -43,7 +43,7 @@ class PdfCustomizer extends Module
 	
 	public function install()
 	{     
-			if(!parent::install){
+			if(!parent::install()){
 			return false;
 			}
 			else{
@@ -53,11 +53,25 @@ class PdfCustomizer extends Module
 	
 	public function uninstall()
 	{
-			if(!parent::uninstall){
+			if(!parent::uninstall()){
 			return false;
 			}
 			else{
 			return true;
 			}
+	}
+	public function getContent(){
+		$this->_html = "<h2>".$this->displayName."</h2>";
+	
+		$this->_displayForm();
+	
+		return $this->_html;
+	}
+	public function _displayForm(){
+		$this->_html .= '
+		<fieldset class="space">
+			<legend><img src="http://www.google.co.uk/intl/en_com/images/srpr/logo1w.png" /> This is some tab text</legend>
+			<label>A label</label><input type="submit" class="button" />
+		</fieldset>';
 	}
 }
