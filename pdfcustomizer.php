@@ -43,17 +43,21 @@ class PdfCustomizer extends Module
 	
 	public function install()
 	{     
-			if(!parent::install() || !$this->registerHook('header')){
-			return false;
-			}
-			else{
-			return true;
-			}
+		$query = "CREATE TABLE "._DB_PREFIX_.$this->name." (`id_link` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_link`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8"; 
+		$querytwo = "CREATE TABLE "._DB_PREFIX_.$this->name."_lang (`id_link` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_link`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8";       
+		if(!parent::install() || $this->registerHook('header') == false || !Db::getInstance()->Execute($query) || !Db::getInstance()->Execute($querytwo)){
+		return false;
+		}
+		else{
+		return true;
+		}
 	}
 	
 	public function uninstall()
 	{
-			if(!parent::uninstall()){
+			$query = "DROP TABLE "._DB_PREFIX_.$this->name;
+			$querytwo = "DROP TABLE "._DB_PREFIX_.$this->name."_lang";
+			if(!parent::uninstall() || !Db::getInstance()->Execute($query) || !Db::getInstance()->Execute($querytwo)){
 			return false;
 			}
 			else{
