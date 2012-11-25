@@ -78,7 +78,45 @@ class PdfCustomizer extends Module
 		<fieldset class="space">
 			<legend><img src="'.$this->_path.'logo_stores.gif" /> This is some tab text</legend>
 			<label>A label</label><input type="submit" class="button" />
-		</fieldset>';
+		</fieldset><fieldset class="space">'; 
+		$links = $this->getLinks();
+		foreach($links as $link){
+			$this->_html .= '<p>'.$link['id'].'<br />'.$link['url'].'<br />'.$link['newWindow'].'<br /></p>';
+		}
+		$this->_html .= '</fieldset>';
+	}
+	
+	public function getLinks(){
+		$result = array();
+		/* get id and url */
+		if (!$links = Db::getInstance()->ExecuteS('SELECT `id_link`, `url`, `new_window` FROM '._DB_PREFIX_.'blocklink'.((int)(Configuration::get('PS_BLOCKLINK_ORDERWAY')) == 1 ? ' ORDER BY `id_link` DESC' : '')))
+			return false;
+		$i = 0;
+		foreach ($links AS $link)
+		{
+			$result[$i]['id'] = $link['id_link'];
+			$result[$i]['url'] = $link['url'];
+			$result[$i]['newWindow'] = $link['new_window'];
+			/* Get multilingual text */
+			if (!$texts = Db::getInstance()->ExecuteS('SELECT `id_lang`, `text` FROM '._DB_PREFIX_.'blocklink_lang WHERE `id_link`='.(int)($link['id_link'])))
+				return false;
+			foreach($texts AS $text)
+				$result[$i]['text_'.$text['id_lang']] = $text['text'];
+			$i++;
+		}
+		return $result;
+	}
+	
+	public function addLink(){
+		
+	}
+	
+	public function updateLink(){
+		
+	}
+	
+	public function deleteLink(){
+		
 	}
 	
 	public function hookHeader($params){
