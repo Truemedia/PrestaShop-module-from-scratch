@@ -74,6 +74,7 @@ class PdfCustomizer extends Module
 	}
 	
 	public function _displayForm(){
+		$languages = Language::getLanguages();
 		$this->_html .= '
 		<fieldset class="space">
 			<legend><img src="'.$this->_path.'logo_stores.gif" /> This is some tab text</legend>
@@ -84,6 +85,7 @@ class PdfCustomizer extends Module
 			$this->_html .= '<p>'.$link['id'].'<br />'.$link['url'].'<br />'.$link['newWindow'].'<br /></p>';
 		}
 		$this->_html .= '</fieldset>';
+		$this->addLink("http://mediacityonline.net", 0, "hello world");
 	}
 	
 	public function getLinks(){
@@ -107,8 +109,26 @@ class PdfCustomizer extends Module
 		return $result;
 	}
 	
-	public function addLink(){
-		
+	public function addLink($url, $newwindow, $text){
+		/* Url registration */
+		if (!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink VALUES (\'\', \''.pSQL($url).'\', '.((isset($newwindow) AND $newwindow) == 'on' ? 1 : 0).')') OR !$lastId = mysql_insert_id())
+			return false;
+		/* Multilingual text */
+		$languages = Language::getLanguages();
+		$defaultLanguage = (int)(Configuration::get('PS_LANG_DEFAULT'));
+		if(!$languages)
+			return false;
+		foreach($languages AS $language){
+			if(!empty($_POST['text_'.$language['id_lang']])){
+				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($lastId).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+					return false;
+			}
+			else{
+				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($lastId).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+					return false;
+			}
+		}
+		return true;
 	}
 	
 	public function updateLink(){
