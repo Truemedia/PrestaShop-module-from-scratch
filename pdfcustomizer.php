@@ -43,8 +43,8 @@ class PdfCustomizer extends Module
 	
 	public function install()
 	{     
-		$query = "CREATE TABLE "._DB_PREFIX_.$this->name." (`id_link` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_link`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8"; 
-		$querytwo = "CREATE TABLE "._DB_PREFIX_.$this->name."_lang (`id_link` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_link`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8";       
+		$query = "CREATE TABLE "._DB_PREFIX_.$this->name." (`id_blocklink` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_blocklink`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8"; 
+		$querytwo = "CREATE TABLE "._DB_PREFIX_.$this->name."_lang (`id_blocklink` int(2) NOT NULL AUTO_INCREMENT, `id_info` varchar(255), PRIMARY KEY (`id_blocklink`)) ENGINE="._MYSQL_ENGINE_." default CHARSET=utf8";       
 		if(!parent::install() || $this->registerHook('header') == false || !Db::getInstance()->Execute($query) || !Db::getInstance()->Execute($querytwo)){
 		return false;
 		}
@@ -91,16 +91,16 @@ class PdfCustomizer extends Module
 	public function getLinks(){
 		$result = array();
 		/* get id and url */
-		if (!$links = Db::getInstance()->ExecuteS('SELECT `id_link`, `url`, `new_window` FROM '._DB_PREFIX_.'blocklink'.((int)(Configuration::get('PS_BLOCKLINK_ORDERWAY')) == 1 ? ' ORDER BY `id_link` DESC' : '')))
+		if (!$links = Db::getInstance()->ExecuteS('SELECT `id_blocklink`, `url`, `new_window` FROM '._DB_PREFIX_.'blocklink'.((int)(Configuration::get('PS_BLOCKLINK_ORDERWAY')) == 1 ? ' ORDER BY `id_blocklink` DESC' : '')))
 			return false;
 		$i = 0;
 		foreach ($links AS $link)
 		{
-			$result[$i]['id'] = $link['id_link'];
+			$result[$i]['id'] = $link['id_blocklink'];
 			$result[$i]['url'] = $link['url'];
 			$result[$i]['newWindow'] = $link['new_window'];
 			/* Get multilingual text */
-			if (!$texts = Db::getInstance()->ExecuteS('SELECT `id_lang`, `text` FROM '._DB_PREFIX_.'blocklink_lang WHERE `id_link`='.(int)($link['id_link'])))
+			if (!$texts = Db::getInstance()->ExecuteS('SELECT `id_lang`, `text` FROM '._DB_PREFIX_.'blocklink_lang WHERE `id_blocklink`='.(int)($link['id_blocklink'])))
 				return false;
 			foreach($texts AS $text)
 				$result[$i]['text_'.$text['id_lang']] = $text['text'];
@@ -111,7 +111,7 @@ class PdfCustomizer extends Module
 	
 	public function addLink($url, $newwindow, $text){
 		/* Url registration */
-		if (!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink VALUES (\'\', \''.pSQL($url).'\', '.((isset($newwindow) AND $newwindow) == 'on' ? 1 : 0).')') OR !$lastId = mysql_insert_id())
+		if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink VALUES (NULL, \''.pSQL($url).'\', '.((isset($newwindow) && $newwindow) == 'on' ? 1 : 0).')') || !$id_link = Db::getInstance()->Insert_ID())
 			return false;
 		/* Multilingual text */
 		$languages = Language::getLanguages();
@@ -120,11 +120,11 @@ class PdfCustomizer extends Module
 			return false;
 		foreach($languages AS $language){
 			if(!empty($_POST['text_'.$language['id_lang']])){
-				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($lastId).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+				if(!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($id_link).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
 					return false;
 			}
 			else{
-				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($lastId).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+				if(!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($id_link).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
 					return false;
 			}
 		}
