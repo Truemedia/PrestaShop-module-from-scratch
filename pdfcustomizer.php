@@ -86,6 +86,7 @@ class PdfCustomizer extends Module
 		}
 		$this->_html .= '</fieldset>';
 		$this->addLink("http://mediacityonline.net", 0, "hello world");
+		$this->updateLink(16, "http://youtuberepeat.com", 1, "random message");
 	}
 	
 	public function getLinks(){
@@ -131,8 +132,28 @@ class PdfCustomizer extends Module
 		return true;
 	}
 	
-	public function updateLink(){
-		
+	public function updateLink($id, $url, $newwindow, $text){
+		/* Url registration */
+		if (!Db::getInstance()->Execute('UPDATE '._DB_PREFIX_.'blocklink SET `url`=\''.pSQL($url).'\', `new_window`='.(isset($newwindow) ? 1 : 0).' WHERE `id_link`='.(int)($id)))
+			return false;
+		/* Multilingual text */
+		$languages = Language::getLanguages();
+		$defaultLanguage = (int)(Configuration::get('PS_LANG_DEFAULT'));
+		if(!$languages)
+			return false;
+		if (!Db::getInstance()->Execute('DELETE FROM '._DB_PREFIX_.'blocklink_lang WHERE `id_link`='.(int)($id)))
+			return false;
+		foreach($languages AS $language){
+			if(!empty($_POST['text_'.$language['id_lang']])){
+				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($id).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+					return false;
+			}
+			else{
+				if(!Db::getInstance()->Execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)($id).','.(int)($language['id_lang']).',\''.pSQL($text).'\')'))
+					return false;
+			}
+		}
+		return true;
 	}
 	
 	public function deleteLink(){
